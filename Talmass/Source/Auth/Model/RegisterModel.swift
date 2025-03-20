@@ -1,7 +1,7 @@
 import Foundation
 
 struct RegisterUser: Codable {
-    let devicaToken: String
+    let deviceToken: String
     let email: String
     let name: String
     let password: String
@@ -9,7 +9,6 @@ struct RegisterUser: Codable {
 }
 
 struct RegisterResponse: Codable {
-    let token: String
-    let user: RegisterUser
+    let message: String
 }
 

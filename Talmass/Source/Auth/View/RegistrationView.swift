@@ -10,7 +10,8 @@ import SnapKit
 
 class RegistrationView: UIViewController {
     
-    private let viewModel = RegisterViewModel()
+    weak var delegate: AuthFlowDelegate?
+    public let viewModel = AuthViewModel()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -111,7 +112,7 @@ class RegistrationView: UIViewController {
         button.setTitle("Продолжить", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.backgroundColor = UIColor(red: 211/255, green: 200/255, blue: 179/255, alpha: 1)
-        button.addTarget(RegistrationView.self, action: #selector(addTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addTapped), for: .touchUpInside)
         return button
     }()
     
@@ -128,6 +129,7 @@ class RegistrationView: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1), for: .normal)
+        button.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
         button.sizeToFit()
         
         return button
@@ -147,7 +149,7 @@ class RegistrationView: UIViewController {
         continueButton.layer.cornerRadius = 25
     }
     
-    func setupBinding() {
+    private func setupBinding() {
         viewModel.onValidationError = { [weak self] errorMessage in
             self?.showAlert(message: errorMessage)
         }
@@ -156,6 +158,7 @@ class RegistrationView: UIViewController {
         }
         viewModel.onSuccess = {
             print("✅ Регистрация успешна!")
+            self.showSuccessAlert()
         }
         viewModel.onError =  { error in
             print("❌ Ошибка регистрации: \(error)")
@@ -224,6 +227,15 @@ class RegistrationView: UIViewController {
         present(alert, animated: true)
     }
     
+    private func showSuccessAlert() {
+        let alert = UIAlertController(title: "Успех", message: "Регистрация прошла успешно", preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] _ in
+//            self?.navigationController?.popViewController(animated: true)
+//        }))
+        alert.addAction(UIAlertAction(title: "Ok", style: .default))
+        present(alert, animated: true)
+    }
+    
     private func registerUser() {
         let name = self.nameTextField.text ?? ""
         let email = self.emailTextField.text ?? ""
@@ -232,6 +244,14 @@ class RegistrationView: UIViewController {
         let deviceToken = "123456789abcd"
         
         self.viewModel.register(name: name, email: email, phone: phoneNumber, password: password, deviceToken: deviceToken)
+    }
+    @objc func addTapped() {
+        let name = self.nameTextField.text ?? ""
+        let email = self.emailTextField.text ?? ""
+        let password = self.passwordTextField.text ?? ""
+        let phoneNumber = self.phoneNumberTextField.text ?? ""
+        
+        viewModel.validateInputs(name: name, email: email, phone: phoneNumber, password: password)
     }
     
     @objc func showPassword() {
@@ -242,15 +262,9 @@ class RegistrationView: UIViewController {
         }
     }
     
-    @objc func addTapped() {
-        let name = self.nameTextField.text ?? ""
-        let email = self.emailTextField.text ?? ""
-        let password = self.passwordTextField.text ?? ""
-        let phoneNumber = self.phoneNumberTextField.text ?? ""
-        
-        viewModel.validateInputs(name: name, email: email, phone: phoneNumber, password: password)
+    @objc func loginTapped() {
+        delegate?.didRequestLogin()
     }
-    
 }
 
 extension RegistrationView: UITextFieldDelegate {

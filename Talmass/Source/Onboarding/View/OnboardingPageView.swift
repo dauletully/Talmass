@@ -47,8 +47,17 @@ class OnboardingPageView: UIViewController {
         return titleDescription
     }()
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        imageView.layer.cornerRadius = 20
+        imageView.clipsToBounds = true
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        super.loadViewIfNeeded()
+        
         setupUI()
         setupConstraints()
         updateUI()
@@ -62,7 +71,7 @@ class OnboardingPageView: UIViewController {
     
     private func setupConstraints() {
         imageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(50)
+            make.top.equalToSuperview().offset(55)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-90)
         }

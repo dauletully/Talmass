@@ -10,7 +10,7 @@ import SnapKit
 
 class OnboardingView: UIViewController {
     
-    private let viewModel = OnboardingViewModel()
+    public let viewModel = OnboardingViewModel()
     private var pageViewController: UIPageViewController!
     
     private let nextButton: UIButton = {

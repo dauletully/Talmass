@@ -26,6 +26,8 @@ class OnboardingViewModel {
     //Call back to update UI
     var onPageChanged: ((Int) -> Void)?
     
+    var onFinished: (() -> Void)?
+    
     //To get current page
     func getCurrentPage() -> OnboardingModel {
         return pages[currentIndex]
@@ -45,7 +47,7 @@ class OnboardingViewModel {
             currentIndex += 1
             onPageChanged?(currentIndex)
         } else {
-            print("Go to login page")
+            onFinished?()
         }
     }
 }
