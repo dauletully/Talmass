@@ -17,8 +17,28 @@ class CatalogViewModel {
     var products: CatalogModel?
     var onCatalogUpdated: ((CatalogModel) -> Void)?
     var onLayoutChanged: (() -> Void)?
+    
+    
+    var sortOption: SortingOption = .popularity {
+        didSet {
+            return setProducts()
+        }
+    }
 
-    var viewMode: ViewMode = .list {
+    func setProducts() {
+        switch sortOption {
+        case .popularity:
+            products?.sort{ $0.id < $1.id }
+        case .priceAscending:
+            products?.sort{ $0.price < $1.price }
+        case .priceDescending:
+            products?.sort{ $0.price > $1.price }
+        }
+        guard let products = products else {fatalError("Products is nil")}
+        onCatalogUpdated?(products)
+    }
+    
+    var viewMode: ViewMode = .grid {
         didSet {
             onLayoutChanged?()
         }
