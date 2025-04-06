@@ -44,8 +44,8 @@ class AppCoordinator {
     }
     
     func showMainFlow() {
-        //            let mainCoordinator = MainCoordinator(window: window)
-        //            mainCoordinator.start()
+        let mainCoordinator = MainCoordinator(window: window)
+        mainCoordinator.start()
     }
     
 }

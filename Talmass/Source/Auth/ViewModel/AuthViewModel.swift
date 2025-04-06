@@ -6,7 +6,6 @@ class AuthViewModel {
     var onValidSuccess: (() -> Void)?
     var onValidationError: ((String) -> Void)?
     var onLoadingStateChange: ((Bool) -> Void)?
-    var onRegister: (() -> Void)?
     
     func validateInputs(name: String, email: String, phone: String, password: String){
         if name.isEmpty || phone.isEmpty || password.isEmpty || email.isEmpty {

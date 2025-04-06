@@ -21,7 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        appCoordinator = AppCoordinator(window: window)
 //        appCoordinator?.start()
         
-        window?.rootViewController = UINavigationController(rootViewController: CatalogView())
+        
+        window?.rootViewController = UINavigationController(rootViewController: TabBarController())
         
         window?.makeKeyAndVisible()
     }

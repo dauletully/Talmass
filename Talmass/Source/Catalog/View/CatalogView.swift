@@ -15,6 +15,7 @@ class CatalogView: UIViewController {
     private lazy var products: CatalogModel = []
     private var topConstraint: Constraint?
     private var topConstraintView: Constraint?
+    public var onSelectProduct: ((Product) -> Void)?
     
     private let headerLabel: UILabel = {
         let label = UILabel()
@@ -96,7 +97,10 @@ class CatalogView: UIViewController {
         setupUI()
         setupConstraints()
         setupBinding()
-        viewModel.fetchCatalog()
+        DispatchQueue.main.async {
+            self.viewModel.fetchCatalog()
+        }
+        
         
     }
     
@@ -112,6 +116,9 @@ class CatalogView: UIViewController {
             self.updateCollectionViewLayout()
             
             self.catalogCollectionView.reloadData()
+        }
+        viewModel.onProductSelected = { [weak self] product in
+            self?.onSelectProduct?(product)
         }
         
     }
@@ -224,7 +231,7 @@ class CatalogView: UIViewController {
             iconName = "sort_price_descending"
         case .popularity:
             iconName = "sort_price_ascending"
-           }
+        }
         
         self.layoutSortButton.setImage(UIImage(named: iconName), for: .normal)
         sortTitle = viewModel.sortOption.rawValue
@@ -243,7 +250,7 @@ class CatalogView: UIViewController {
             self?.viewModel.sortOption = selectedOption
             self?.updateSortButton()
         }
-       
+        
         
         if let sheet = tableVC.sheetPresentationController {
             sheet.detents = [.medium()]
@@ -269,6 +276,22 @@ extension CatalogView: UICollectionViewDelegate, UICollectionViewDataSource, UIS
         cell.configure(with: product, viewModel: viewModel)
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        viewModel.didSelectedProduct(with: indexPath.row)
+        
+        let cartView = CardView()
+        cartView.configureCard(with: products[indexPath.row], for: viewModel, recomendCatalog: products)
+        
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromRight
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        navigationController?.view.layer.add(transition, forKey: kCATransition)
+        navigationController?.pushViewController(cartView, animated: false)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

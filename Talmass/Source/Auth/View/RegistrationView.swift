@@ -234,6 +234,7 @@ class RegistrationView: UIViewController {
 //        }))
         alert.addAction(UIAlertAction(title: "Ok", style: .default))
         present(alert, animated: true)
+        
     }
     
     private func registerUser() {

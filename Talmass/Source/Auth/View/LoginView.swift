@@ -9,7 +9,6 @@ import UIKit
 import SnapKit
 
 protocol AuthFlowDelegate: AnyObject {
-    func didRequestRegistration()
     func didRequestLogin()
 }
 
@@ -17,6 +16,9 @@ class LoginView: UIViewController {
     
     weak var delegate: AuthFlowDelegate?
     public let viewModel = AuthViewModel()
+    var onLoginSuccess: (() -> Void)?
+    var onRegisterTap: (() -> Void)?
+
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -138,9 +140,9 @@ class LoginView: UIViewController {
         viewModel.onValidSuccess = {
             self.loginUser()
         }
-        viewModel.onSuccess = {
+        viewModel.onSuccess = { [weak self] in
             print("✅ Вход успешен!")
-            
+            self?.onLoginSuccess?()
         }
         viewModel.onError =  { error in
             print("❌ Ошибка при входе: \(error)")
@@ -150,12 +152,7 @@ class LoginView: UIViewController {
                 self?.loginButton.showLoading(isLoading)
             }
         }
-//        viewModel.onRegister = { [weak self] in
-//            DispatchQueue.main.async {
-//                print("✅ Переход на экран регистрации")
-//                (UIApplication.shared.delegate as? SceneDelegate)?.appCoordinator?.showAuthFlow()
-//            }
-//        }
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -249,7 +246,7 @@ class LoginView: UIViewController {
     }
     
     @objc func registerButtonTapped() {
-        delegate?.didRequestRegistration()
+        self.onRegisterTap?()
     }
 }
 

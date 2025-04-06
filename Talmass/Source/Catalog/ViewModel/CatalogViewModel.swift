@@ -17,6 +17,7 @@ class CatalogViewModel {
     var products: CatalogModel?
     var onCatalogUpdated: ((CatalogModel) -> Void)?
     var onLayoutChanged: (() -> Void)?
+    var onProductSelected: ((Product) -> Void)?
     
     
     var sortOption: SortingOption = .popularity {
@@ -55,6 +56,11 @@ class CatalogViewModel {
         }
     }
 
+    func didSelectedProduct(with index: Int) {
+        guard let product = products?[index] else {fatalError("Product is nil")}
+        onProductSelected?(product)
+    }
+    
     func fetchCatalog() {
         ApiManager.shared.fetchCatalog { [weak self] result in
             switch result {
