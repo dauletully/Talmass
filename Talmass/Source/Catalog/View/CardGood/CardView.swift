@@ -15,6 +15,8 @@ class CardView: UIViewController {
     private let identifier: String = "RecomentGoodCollectionViewIdentifier"
     private lazy var recomendProducts = CatalogModel()
     private var viewModel: CatalogViewModel?
+    private var countAddedProducts: Int = 0
+    private var currentProduct: Product?
     
     
     private let scrollView: UIScrollView = {
@@ -64,13 +66,50 @@ class CardView: UIViewController {
     }()
     
     private lazy var basketButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.setTitle("В корзину", for: .normal)
         button.backgroundColor = UIColor(red: 181/255, green: 153/255, blue: 128/255, alpha: 1)
         button.setTitleColor(.white, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(handleAddToBasket), for: .touchUpInside)
         
         return button
+    }()
+    
+    private let minusButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+    private let plusButton = UIButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+    private let countLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 40, height: 22))
+
+    private lazy var counterView: UIStackView = {
+        let counterView = UIStackView()
+        counterView.axis = .horizontal
+        counterView.spacing = 8
+        counterView.alignment = .center
+        counterView.isHidden = true
+        
+        let textLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 85, height: 22))
+        textLabel.text = "В корзине"
+        textLabel.textColor = UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1)
+        textLabel.textAlignment = .center
+        
+        minusButton.setTitle("-", for: .normal)
+        minusButton.setTitleColor(UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1), for: .normal)
+        minusButton.addTarget(self, action: #selector(minusTapped), for: .touchUpInside)
+        
+        countLabel.text = "1"
+        countLabel.textColor = .black
+        countLabel.textAlignment = .center
+        
+        plusButton.setTitle("+", for: .normal)
+        plusButton.setTitleColor(UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1), for: .normal)
+        plusButton.addTarget(self, action: #selector(plusTapped), for: .touchUpInside)
+        
+        counterView.addArrangedSubview(textLabel)
+        counterView.addArrangedSubview(minusButton)
+        counterView.addArrangedSubview(countLabel)
+        counterView.addArrangedSubview(plusButton)
+       
+        return counterView
     }()
     
     private lazy var videoButton: UIButton = {
@@ -139,7 +178,7 @@ class CardView: UIViewController {
         
         return collectionView
     }()
-
+    
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -149,12 +188,14 @@ class CardView: UIViewController {
         
         self.basketButton.layer.cornerRadius = 35
         self.basketButton.clipsToBounds = true
+        
+        self.counterView.layer.cornerRadius = 35
+        self.counterView.clipsToBounds = true
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadViewIfNeeded()
-        
         setupUI()
         setupConstraints()
     }
@@ -169,6 +210,7 @@ class CardView: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(priceLabel)
         view.addSubview(basketButton)
+        view.addSubview(counterView)
         view.addSubview(videoButton)
         view.addSubview(cardSpecsView)
         view.addSubview(descriptionLabel)
@@ -176,7 +218,7 @@ class CardView: UIViewController {
         view.addSubview(recomendTextLabel)
         view.addSubview(collectionView)
         
-       
+        
     }
     
     private func setupConstraints() {
@@ -211,6 +253,11 @@ class CardView: UIViewController {
             make.height.equalTo(34)
         }
         basketButton.snp.makeConstraints { make in
+            make.bottom.equalTo(videoButton.snp.top).offset(-5)
+            make.leading.trailing.equalTo(contentView.safeAreaLayoutGuide).inset(16)
+            make.height.equalTo(56)
+        }
+        counterView.snp.makeConstraints { make in
             make.bottom.equalTo(videoButton.snp.top).offset(-5)
             make.leading.trailing.equalTo(contentView.safeAreaLayoutGuide).inset(16)
             make.height.equalTo(56)
@@ -260,9 +307,10 @@ class CardView: UIViewController {
         self.descriptionTextLabel.text = product.description
         
         self.viewModel = viewModel
+        self.currentProduct = product
         
         getRecomendProducts(catalog: recomendCatalog, product: product)
-       
+        
     }
     
     private func getRecomendProducts(catalog: CatalogModel, product: Product) {
@@ -274,6 +322,37 @@ class CardView: UIViewController {
             }
         }
         
+    }
+    
+    @objc private func handleAddToBasket() {
+        self.countAddedProducts = 1
+        countLabel.text = "1"
+        counterView.isHidden = false
+        basketButton.isHidden = true
+        viewModel?.addCartToBasket(for: self.currentProduct!, count: self.countAddedProducts)
+    }
+    
+    @objc private func plusTapped() {
+        self.countAddedProducts += 1
+        viewModel?.increaseCount(for: self.currentProduct!, count: self.countAddedProducts)
+        self.countLabel.text = "\(countAddedProducts)"
+    }
+    @objc private func minusTapped() {
+        self.countAddedProducts -= 1
+        
+        if self.countAddedProducts <= 0 {
+            counterView.isHidden = true
+            basketButton.isHidden = false
+            countAddedProducts = 1
+            self.countLabel.text = "1"
+            viewModel?.deleteProduct(fromBasket: self.currentProduct!)
+            
+            
+        } else {
+            viewModel?.decreaseCount(for: self.currentProduct!, count: self.countAddedProducts)
+            self.countLabel.text = "\(countAddedProducts)"
+            
+        }
     }
     
 }

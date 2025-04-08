@@ -26,7 +26,7 @@ class TabBarController: UITabBarController {
                 image: UIImage(named: "market_icon")!,
                 title: "Каталог"),
             generateViewController(
-                viewController: CatalogView(),
+                viewController: BasketView(),
                 image: UIImage(named: "busket_icon")!,
                 title: "Корзина"),
             generateViewController(

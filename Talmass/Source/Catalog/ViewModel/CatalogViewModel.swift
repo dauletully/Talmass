@@ -78,4 +78,65 @@ class CatalogViewModel {
         let imageUrl = "http://drevmasstestapi.mobydev.kz/" + imageURL
         ImageLoader.shared.loadImage(from: imageUrl, completion: complation)
     }
+
+    func addCartToBasket(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Add \(userID), \(product.id), \(count)")
+        ApiManager.shared.addCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully added to basket")
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func increaseCount(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Increase \(userID), \(product.id), \(count)")
+        ApiManager.shared.increaseCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully increased to basket")
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func decreaseCount(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Decrease \(userID), \(product.id), \(count)")
+        ApiManager.shared.decreaseCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully decreased to basket")
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func deleteProduct(fromBasket product: Product) {
+        print("Delete \(product.id)")
+        ApiManager.shared.deleteCartToBasket(productID: product.id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully deleted from basket")
+                case .failure(let error):
+                    print("Error deleting from basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    
 }
