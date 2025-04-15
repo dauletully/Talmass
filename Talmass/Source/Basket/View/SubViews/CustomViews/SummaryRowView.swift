@@ -30,7 +30,9 @@ final class SummaryRowView: UIView {
         hStack.axis = .horizontal
         hStack.distribution = .equalSpacing
         hStack.alignment = .center
-
+        
+        titleLabel.isUserInteractionEnabled = true
+        valueLabel.isUserInteractionEnabled = true
         hStack.addArrangedSubview(titleLabel)
         hStack.addArrangedSubview(valueLabel)
 

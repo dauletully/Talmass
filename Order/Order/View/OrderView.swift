@@ -1,10 +1,3 @@
-//
-//  OrderView.swift
-//  Talmass
-//
-//  Created by Nurlybaqyt Begaly on 15.04.2025.
-//
-
 import UIKit
 import SnapKit
 
@@ -32,38 +25,32 @@ class OrderView: UIViewController {
         return label
     }()
     
-    private lazy var nameTextField: UITextField = {
+    private let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Имя"
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .systemGray6
         textField.layer.cornerRadius = 10
-        textField.delegate = self
-        
         return textField
     }()
     
-    private lazy var phoneTextField: UITextField = {
+    private let phoneTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Номер телефона"
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .systemGray6
         textField.layer.cornerRadius = 10
         textField.keyboardType = .phonePad
-        textField.delegate = self
-        
         return textField
     }()
     
-    private lazy var emailTextField: UITextField = {
+    private let emailTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Email"
         textField.borderStyle = .roundedRect
         textField.backgroundColor = .systemGray6
         textField.layer.cornerRadius = 10
         textField.keyboardType = .emailAddress
-        textField.delegate = self
-        
         return textField
     }()
     
@@ -71,7 +58,6 @@ class OrderView: UIViewController {
         let items = ["Самовывоз", "Доставка"]
         let segmentControl = UISegmentedControl(items: items)
         segmentControl.selectedSegmentIndex = 0
-        
         return segmentControl
     }()
     
@@ -82,7 +68,6 @@ class OrderView: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 16)
         button.layer.cornerRadius = 24
-        
         return button
     }()
     
@@ -92,10 +77,6 @@ class OrderView: UIViewController {
         setupUI()
         setupConstraints()
         setupBindings()
-    }
-    //Ending writing 
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
     }
     
     // MARK: - Setup
@@ -112,8 +93,12 @@ class OrderView: UIViewController {
         contentView.addSubview(deliveryTypeSegmentControl)
         view.addSubview(submitButton)
         
+        nameTextField.delegate = self
+        phoneTextField.delegate = self
+        emailTextField.delegate = self
+        
         submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
-//        deliveryTypeSegmentControl.addTarget(self, action: #selector(deliveryTypeChanged), for: .valueChanged)
+        deliveryTypeSegmentControl.addTarget(self, action: #selector(deliveryTypeChanged), for: .valueChanged)
     }
     
     private func setupConstraints() {
@@ -164,36 +149,55 @@ class OrderView: UIViewController {
     }
     
     private func setupBindings() {
-        
-    }
-    
-    private func setupSuccessAlert() {
-        let successVC = SuccessOrderView()
-        
-        if let sheet = successVC.sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-            sheet.preferredCornerRadius = 20
+        viewModel.onOrderSuccess = { [weak self] response in
+            let alert = UIAlertController(
+                title: "Успешно",
+                message: "\(response.message)\nНомер заказа: \(response.orderId ?? "")",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                self?.navigationController?.popViewController(animated: true)
+            })
+            self?.present(alert, animated: true)
         }
-        present(successVC, animated: true)
+        
+        viewModel.onOrderError = { [weak self] error in
+            let alert = UIAlertController(
+                title: "Ошибка",
+                message: error,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(alert, animated: true)
+        }
     }
     
     // MARK: - Actions
     @objc private func submitButtonTapped() {
-        setupSuccessAlert()
-        
-        self.emailTextField.text = ""
-        self.nameTextField.text = ""
-        self.phoneTextField.text = ""
-        
+        viewModel.submitOrder()
     }
-
+    
+    @objc private func deliveryTypeChanged(_ sender: UISegmentedControl) {
+        viewModel.updateDeliveryType(isPickup: sender.selectedSegmentIndex == 0)
+    }
 }
 
+// MARK: - UITextFieldDelegate
 extension OrderView: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let text = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? string
+        
+        switch textField {
+        case nameTextField:
+            viewModel.updateName(text)
+        case phoneTextField:
+            viewModel.updatePhone(text)
+        case emailTextField:
+            viewModel.updateEmail(text)
+        default:
+            break
+        }
         
         return true
     }
-}
+} 

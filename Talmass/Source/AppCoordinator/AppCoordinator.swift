@@ -10,10 +10,10 @@ class AppCoordinator {
     }
     
     func start() {
-        let hasSeenOnboarding = false
-        let isLoggedIn = false
-        //        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-        //                let isLoggedIn = UserDefaults.standard.string(forKey: "accessToken") != nil
+//        let hasSeenOnboarding = false
+//        let isLoggedIn = false
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+        let isLoggedIn = UserDefaults.standard.string(forKey: "accessToken") != nil
         
         if !hasSeenOnboarding {
             showOnboarding()
@@ -27,7 +27,7 @@ class AppCoordinator {
     func showOnboarding() {
         let onBoardingVC = OnboardingView()
         onBoardingVC.viewModel.onFinished = { [ weak self ] in
-            //            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
             self?.showAuthFlow()
         }
         let transition = CATransition()

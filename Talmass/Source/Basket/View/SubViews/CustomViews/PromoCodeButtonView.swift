@@ -12,6 +12,7 @@ final class PromoCodeButtonView: UIView {
     private let iconImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "promocodeIcon"))
         imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = true
         
         return imageView
     }()
@@ -21,18 +22,24 @@ final class PromoCodeButtonView: UIView {
         label.text = "Ввести промокод"
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .black
+        label.isUserInteractionEnabled = true
+        
         return label
     }()
 
     private let arrowImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
         imageView.tintColor = UIColor.brown
+        imageView.isUserInteractionEnabled = true
+        
         return imageView
     }()
 
     private let tapButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
+        button.isUserInteractionEnabled = true
+        
         return button
     }()
 

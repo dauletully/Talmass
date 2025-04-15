@@ -156,7 +156,6 @@ class ApiManager {
                 let basket = try JSONDecoder().decode(BasketModel.self, from: data)
                 DispatchQueue.main.async {
                     completion(.success(basket))
-                    print(basket)
                 }
             } catch {
                 completion(.failure(error))

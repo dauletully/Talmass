@@ -86,6 +86,7 @@ class CardView: UIViewController {
         counterView.spacing = 8
         counterView.alignment = .center
         counterView.isHidden = true
+        counterView.layer.borderColor = UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1).cgColor
         
         let textLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 85, height: 22))
         textLabel.text = "В корзине"
@@ -96,7 +97,7 @@ class CardView: UIViewController {
         minusButton.setTitleColor(UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1), for: .normal)
         minusButton.addTarget(self, action: #selector(minusTapped), for: .touchUpInside)
         
-        countLabel.text = "1"
+//        countLabel.text = "1"
         countLabel.textColor = .black
         countLabel.textAlignment = .center
         
@@ -191,6 +192,8 @@ class CardView: UIViewController {
         
         self.counterView.layer.cornerRadius = 35
         self.counterView.clipsToBounds = true
+        self.counterView.layer.borderWidth = 1
+        
     }
     
     override func viewDidLoad() {
@@ -309,6 +312,18 @@ class CardView: UIViewController {
         self.viewModel = viewModel
         self.currentProduct = product
         
+        let currentCount = viewModel.getProductCount(for: product.id)
+        if currentCount > 0 {
+            self.countAddedProducts = currentCount
+                    self.countLabel.text = "\(currentCount)"
+                    self.counterView.isHidden = false
+                    self.basketButton.isHidden = true
+                } else {
+                    self.counterView.isHidden = true
+                    self.basketButton.isHidden = false
+                    self.countAddedProducts = 1
+                }
+        
         getRecomendProducts(catalog: recomendCatalog, product: product)
         
     }
@@ -325,11 +340,12 @@ class CardView: UIViewController {
     }
     
     @objc private func handleAddToBasket() {
-        self.countAddedProducts = 1
-        countLabel.text = "1"
-        counterView.isHidden = false
-        basketButton.isHidden = true
-        viewModel?.addCartToBasket(for: self.currentProduct!, count: self.countAddedProducts)
+        print("\(self.countAddedProducts) in handleAddToBasket")
+            self.countAddedProducts = 1
+            countLabel.text = "1"
+            counterView.isHidden = false
+            basketButton.isHidden = true
+            viewModel?.addCartToBasket(for: self.currentProduct!, count: self.countAddedProducts)
     }
     
     @objc private func plusTapped() {

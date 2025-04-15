@@ -21,12 +21,27 @@ class MainCoordinator {
     }
     
     func start() {
-        let tabBarController = TabBarController()
+        let basketVM = BasketViewModel()
         
+        let tabBarController = TabBarController()
+        tabBarController.basketViewModel = basketVM
+        tabBarController.genetateTabBar()
+        
+        basketVM.onGoToTapped = {
+            tabBarController.selectedIndex = 1
+        }
+        basketVM.onOrderTapped = {
+            self.showOrder()
+        }
         let navController = UINavigationController(rootViewController: tabBarController)
         self.navigationController = navController
         window?.rootViewController = navController
         
+    }
+    
+    func showOrder() {
+        let orderVC = OrderView()
+        navigationController?.pushViewController(orderVC, animated: true)
     }
     
     func logout() {

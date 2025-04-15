@@ -18,12 +18,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         window?.backgroundColor = .white
         
-//        appCoordinator = AppCoordinator(window: window)
-//        appCoordinator?.start()
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start()
         
         
-        window?.rootViewController = UINavigationController(rootViewController: TabBarController())
-        
+//        window?.rootViewController = UINavigationController(rootViewController: TabBarController())
+//        
         window?.makeKeyAndVisible()
     }
 

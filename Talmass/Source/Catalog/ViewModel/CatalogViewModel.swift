@@ -18,7 +18,7 @@ class CatalogViewModel {
     var onCatalogUpdated: ((CatalogModel) -> Void)?
     var onLayoutChanged: (() -> Void)?
     var onProductSelected: ((Product) -> Void)?
-    
+    var onBasketCatalogUpdated: (() -> Void)?
     
     var sortOption: SortingOption = .popularity {
         didSet {
@@ -74,6 +74,10 @@ class CatalogViewModel {
         }
     }
     
+    func getProductCount(for productID: Int) -> Int {
+        return BasketManager.shared.basket?.basket.first(where: { $0.productID == productID })?.count ?? 0
+    }
+    
     func loadImage(for imageURL: String, complation: @escaping(UIImage?) -> Void) {
         let imageUrl = "http://drevmasstestapi.mobydev.kz/" + imageURL
         ImageLoader.shared.loadImage(from: imageUrl, completion: complation)
@@ -87,6 +91,7 @@ class CatalogViewModel {
                 switch result {
                 case .success(()):
                     print("Successfully added to basket")
+                    BasketManager.shared.updateBasket()
                 case .failure(let error):
                     print("Error adding to basket: \(error.localizedDescription)")
                 }
@@ -102,6 +107,7 @@ class CatalogViewModel {
                 switch result {
                 case .success(()):
                     print("Successfully increased to basket")
+                    BasketManager.shared.updateBasket()
                 case .failure(let error):
                     print("Error adding to basket: \(error.localizedDescription)")
                 }
@@ -117,6 +123,7 @@ class CatalogViewModel {
                 switch result {
                 case .success(()):
                     print("Successfully decreased to basket")
+                    BasketManager.shared.updateBasket()
                 case .failure(let error):
                     print("Error adding to basket: \(error.localizedDescription)")
                 }
@@ -131,6 +138,7 @@ class CatalogViewModel {
                 switch result {
                 case .success(()):
                     print("Successfully deleted from basket")
+                    BasketManager.shared.updateBasket()
                 case .failure(let error):
                     print("Error deleting from basket: \(error.localizedDescription)")
                 }

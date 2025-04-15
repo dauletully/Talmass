@@ -9,13 +9,17 @@ import UIKit
 
 class TabBarController: UITabBarController {
     
+    var basketViewModel: BasketViewModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        genetateTabBar()
-        configureTabBar()
+//        genetateTabBar()
+//        configureTabBar()
     }
     
-    private func genetateTabBar() {
+    public func genetateTabBar() {
+        let basketVC = BasketView(viewModel: basketViewModel ?? BasketViewModel())
+        
         viewControllers = [
             generateViewController(
                 viewController: CatalogView(),
@@ -26,7 +30,7 @@ class TabBarController: UITabBarController {
                 image: UIImage(named: "market_icon")!,
                 title: "Каталог"),
             generateViewController(
-                viewController: BasketView(),
+                viewController: basketVC,
                 image: UIImage(named: "busket_icon")!,
                 title: "Корзина"),
             generateViewController(
@@ -34,6 +38,8 @@ class TabBarController: UITabBarController {
                 image: UIImage(named: "profile_icon")!,
                 title: "Профиль")
         ]
+        
+        self.configureTabBar()
     }
     
     private func generateViewController(viewController: UIViewController, image: UIImage, title: String) -> UIViewController {
