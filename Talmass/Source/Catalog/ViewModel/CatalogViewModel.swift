@@ -1,0 +1,150 @@
+//
+//  CatalogViewModel.swift
+//  Talmass
+//
+//  Created by Nurlybaqyt Begaly on 19.03.2025.
+//
+
+import UIKit
+
+enum ViewMode {
+    case grid
+    case list
+    case large
+}
+
+class CatalogViewModel {
+    var products: CatalogModel?
+    var onCatalogUpdated: ((CatalogModel) -> Void)?
+    var onLayoutChanged: (() -> Void)?
+    var onProductSelected: ((Product) -> Void)?
+    var onBasketCatalogUpdated: (() -> Void)?
+    
+    var sortOption: SortingOption = .popularity {
+        didSet {
+            return setProducts()
+        }
+    }
+
+    func setProducts() {
+        switch sortOption {
+        case .popularity:
+            products?.sort{ $0.id < $1.id }
+        case .priceAscending:
+            products?.sort{ $0.price < $1.price }
+        case .priceDescending:
+            products?.sort{ $0.price > $1.price }
+        }
+        guard let products = products else {fatalError("Products is nil")}
+        onCatalogUpdated?(products)
+    }
+    
+    var viewMode: ViewMode = .grid {
+        didSet {
+            onLayoutChanged?()
+        }
+    }
+    
+    func toggleViewMode() {
+        switch viewMode {
+        case .grid:
+            viewMode = .list
+        case .list:
+            viewMode = .large
+        case .large:
+            viewMode = .grid
+        }
+    }
+
+    func didSelectedProduct(with index: Int) {
+        guard let product = products?[index] else {fatalError("Product is nil")}
+        onProductSelected?(product)
+    }
+    
+    func fetchCatalog() {
+        ApiManager.shared.fetchCatalog { [weak self] result in
+            switch result {
+            case .success(let products):
+                self?.products = products
+                self?.onCatalogUpdated?(products)
+            case .failure(let error):
+                print("Ошибка загрузка каталога: \(error.localizedDescription)")
+                
+            }
+        }
+    }
+    
+    func getProductCount(for productID: Int) -> Int {
+        return BasketManager.shared.basket?.basket.first(where: { $0.productID == productID })?.count ?? 0
+    }
+    
+    func loadImage(for imageURL: String, complation: @escaping(UIImage?) -> Void) {
+        let imageUrl = "http://drevmasstestapi.mobydev.kz/" + imageURL
+        ImageLoader.shared.loadImage(from: imageUrl, completion: complation)
+    }
+
+    func addCartToBasket(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Add \(userID), \(product.id), \(count)")
+        ApiManager.shared.addCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully added to basket")
+                    BasketManager.shared.updateBasket()
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func increaseCount(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Increase \(userID), \(product.id), \(count)")
+        ApiManager.shared.increaseCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully increased to basket")
+                    BasketManager.shared.updateBasket()
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func decreaseCount(for product: Product, count: Int) {
+        let userID = ApiManager.shared.getUserID()
+        print("Decrease \(userID), \(product.id), \(count)")
+        ApiManager.shared.decreaseCartToBasket(productID: product.id, count: count, userID: userID) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully decreased to basket")
+                    BasketManager.shared.updateBasket()
+                case .failure(let error):
+                    print("Error adding to basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func deleteProduct(fromBasket product: Product) {
+        print("Delete \(product.id)")
+        ApiManager.shared.deleteCartToBasket(productID: product.id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(()):
+                    print("Successfully deleted from basket")
+                    BasketManager.shared.updateBasket()
+                case .failure(let error):
+                    print("Error deleting from basket: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    
+}
