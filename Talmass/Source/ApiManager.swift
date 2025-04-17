@@ -13,6 +13,7 @@ class ApiManager {
     private let baseUrl = URL(string: "http://drevmasstestapi.mobydev.kz/api/")!
     let token = AuthApiManager.shared.getToken() ?? ""
     
+    //MARK: - Catalog APIs functions
     func fetchCatalog(complation: @escaping (Result<CatalogModel, Error>) -> Void){
         guard let url = URL(string: "products", relativeTo: baseUrl) else {
             fatalError("Invalid URL")
@@ -34,7 +35,7 @@ class ApiManager {
                     DispatchQueue.main.async {
                         complation(.success(catalogModel))
                     }
-                   
+                    
                 } catch {
                     complation(.failure(error))
                 }
@@ -46,7 +47,7 @@ class ApiManager {
     func addCartToBasket(productID: Int, count: Int, userID: Int, complation: @escaping (Result<Void, Error>) -> Void) {
         guard let url = URL(string: "basket", relativeTo: baseUrl) else {fatalError("Invalid URL")}
         
-       
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -89,7 +90,7 @@ class ApiManager {
         
         request.httpBody = try? JSONEncoder().encode(sendData)
         
-       requestSession(request: request, completion: complation)
+        requestSession(request: request, completion: complation)
     }
     
     func deleteCartToBasket(productID: Int, complation: @escaping (Result<Void, Error>) -> Void) {
@@ -102,7 +103,7 @@ class ApiManager {
         
         requestSession(request: request, completion: complation)
     }
-    
+    //MARK: - Request session for all
     func requestSession(request: URLRequest, completion: @escaping (Result<Void, Error>) -> Void) {
         let task = URLSession.shared.dataTask(with: request) { _, _, error in
             if let error = error {
@@ -114,6 +115,7 @@ class ApiManager {
         task.resume()
     }
     
+    //MARK: - Basket APIs functions
     func getUserID() -> Int {
         guard let url = URL(string: "user", relativeTo: baseUrl) else {fatalError("Invalid URL")}
         var request = URLRequest(url: url)
@@ -132,7 +134,6 @@ class ApiManager {
         task.resume()
         return userId
     }
-    
     
     func fetchBasket(completion: @escaping (Result<BasketModel, Error>) -> Void) {
         guard let url = URL(string: "basket", relativeTo: baseUrl) else {fatalError("Invalid URL")}
@@ -162,5 +163,50 @@ class ApiManager {
             }
         }
         task.resume()
+    }
+    
+    //MARK: - Profile APIs functions
+    func fetchUserInformation(completion: @escaping (Result<UserInformationModel, Error>) -> Void) {
+        guard let url = URL(string: "user/information", relativeTo: baseUrl) else {fatalError("Invalid URL")}
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization" )
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "", code: 0, userInfo: nil)))
+                return
+            }
+            
+            do {
+                let user = try JSONDecoder().decode(UserInformationModel.self, from: data)
+                DispatchQueue.main.async {
+                    completion(.success(user))
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+    
+    func updateUserInformation(updatedData: UserInformationModel, completion: @escaping(Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "user/information", relativeTo: baseUrl) else {fatalError("Invalid URL")}
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Barear \(token)", forHTTPHeaderField: "Authorization")
+    
+        request.httpBody = try? JSONEncoder().encode(updatedData)
+        
+        requestSession(request: request, completion: completion)
     }
 }

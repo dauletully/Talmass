@@ -22,9 +22,11 @@ class MainCoordinator {
     
     func start() {
         let basketVM = BasketViewModel()
+        let profileVM = ProfileViewModel()
         
         let tabBarController = TabBarController()
         tabBarController.basketViewModel = basketVM
+        tabBarController.profileViewModel = profileVM
         tabBarController.genetateTabBar()
         
         basketVM.onGoToTapped = {
@@ -33,6 +35,13 @@ class MainCoordinator {
         basketVM.onOrderTapped = {
             self.showOrder()
         }
+        profileVM.onLogout = {
+            self.logout()
+        }
+        profileVM.onInfoTapped = {
+            self.showMyInfo()
+        }
+        
         let navController = UINavigationController(rootViewController: tabBarController)
         self.navigationController = navController
         window?.rootViewController = navController
@@ -48,6 +57,11 @@ class MainCoordinator {
         UserDefaults.standard.removeObject(forKey: "accessToken")
         let authCoordinates = AuthCoordinator(window: window)
         authCoordinates.start()
+    }
+    
+    func showMyInfo() {
+        let myInfoVC = MyInfoPageView()
+        navigationController?.pushViewController(myInfoVC, animated: true)
     }
     
 }

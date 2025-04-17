@@ -10,6 +10,7 @@ import UIKit
 class TabBarController: UITabBarController {
     
     var basketViewModel: BasketViewModel?
+    var profileViewModel: ProfileViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,6 +20,7 @@ class TabBarController: UITabBarController {
     
     public func genetateTabBar() {
         let basketVC = BasketView(viewModel: basketViewModel ?? BasketViewModel())
+        let profileVC = ProfileView(viewModel: profileViewModel ?? ProfileViewModel())
         
         viewControllers = [
             generateViewController(
@@ -34,7 +36,7 @@ class TabBarController: UITabBarController {
                 image: UIImage(named: "busket_icon")!,
                 title: "Корзина"),
             generateViewController(
-                viewController: CatalogView(),
+                viewController: profileVC,
                 image: UIImage(named: "profile_icon")!,
                 title: "Профиль")
         ]
