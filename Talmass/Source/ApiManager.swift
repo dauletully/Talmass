@@ -165,6 +165,37 @@ class ApiManager {
         task.resume()
     }
     
+    //MARK: - Order APIs functions
+    func fetchUser(completion: @escaping (Result<UserModel, Error>) -> Void) {
+        guard let url = URL(string: "user", relativeTo: baseUrl) else {fatalError("Invalid URL")}
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "", code: 0, userInfo: nil)))
+                return
+            }
+            
+            do {
+                let userModel = try JSONDecoder().decode(UserModel.self, from: data)
+                DispatchQueue.main.async {
+                    completion(.success(userModel))
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+    
     //MARK: - Profile APIs functions
     func fetchUserInformation(completion: @escaping (Result<UserInformationModel, Error>) -> Void) {
         guard let url = URL(string: "user/information", relativeTo: baseUrl) else {fatalError("Invalid URL")}
@@ -208,5 +239,38 @@ class ApiManager {
         request.httpBody = try? JSONEncoder().encode(updatedData)
         
         requestSession(request: request, completion: completion)
+    }
+    
+    //MARK: - Course page API's
+    func fetchCourse(completion: @escaping(Result<Course, Error>) -> Void) {
+        guard let url = URL(string: "course", relativeTo: baseUrl) else {fatalError("Invalid URL")}
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Barear \(token)", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                let error = NSError(domain: "Invalid Data", code: 1000, userInfo: nil)
+                completion(.failure(error))
+                return
+            }
+            
+            do {
+                let course = try JSONDecoder().decode(Course.self, from: data)
+                DispatchQueue.main.async {
+                    completion(.success(course))
+                }
+                
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
     }
 }

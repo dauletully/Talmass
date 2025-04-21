@@ -9,7 +9,18 @@ import UIKit
 import SnapKit
 
 class OrderView: UIViewController {
-    private let viewModel = OrderViewModel()
+    private let viewModel: OrderViewModel
+    
+    init(viewModel: OrderViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
     
     // MARK: - UI Elements
     private let scrollView: UIScrollView = {
@@ -92,6 +103,10 @@ class OrderView: UIViewController {
         setupUI()
         setupConstraints()
         setupBindings()
+        
+        DispatchQueue.main.async {
+            self.viewModel.fetchUser()
+        }
     }
     //Ending writing 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -164,7 +179,11 @@ class OrderView: UIViewController {
     }
     
     private func setupBindings() {
-        
+        self.viewModel.onUserUpdated = { [weak self] user in
+            self?.nameTextField.text = user?.name
+            self?.emailTextField.text = user?.email
+            self?.phoneTextField.text = user?.phoneNumber
+        }
     }
     
     private func setupSuccessAlert() {

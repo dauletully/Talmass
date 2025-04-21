@@ -12,6 +12,7 @@ class ContentViewElements: UIView {
     
     var onLogOutTapped: (() -> Void)?
     var onInfoTapped: (() -> Void)?
+    var onConntectedTapped: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -115,6 +116,7 @@ class ContentViewElements: UIView {
         // Добавь действия при нажатии
         button1.addTarget(self, action: #selector(tapMyData), for: .touchUpInside)
         button2.addTarget(self, action: #selector(tapChangePassword), for: .touchUpInside)
+        button4.addTarget(self, action: #selector(tapConntected), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(tapLogout), for: .touchUpInside)
     }
     
@@ -155,5 +157,8 @@ class ContentViewElements: UIView {
     
     @objc private func tapLogout() {
         self.onLogOutTapped?()
+    }
+    @objc private func tapConntected() {
+        self.onConntectedTapped?()
     }
 }

@@ -10,6 +10,8 @@ import SnapKit
 
 class MyInfoPageView: UIViewController {
     
+    private var userID = Int()
+    public var onSaveButtonTapped: ((UserInformationModel) -> Void)?
     
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -23,6 +25,7 @@ class MyInfoPageView: UIViewController {
     
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
+        textField.textColor = .black
         textField.borderStyle = .none
         textField.textAlignment = .left
         textField.addUnderline()
@@ -53,6 +56,7 @@ class MyInfoPageView: UIViewController {
     
     private lazy var phoneNumberTextField: UITextField = {
         let textField = UITextField()
+        textField.textColor = .black
         textField.borderStyle = .none
         textField.textAlignment = .left
         textField.addUnderline()
@@ -84,6 +88,7 @@ class MyInfoPageView: UIViewController {
     
     private lazy var emailTextField: UITextField = {
         let textField = UITextField()
+        textField.textColor = .black
         textField.borderStyle = .none
         textField.textAlignment = .left
         textField.addUnderline()
@@ -138,6 +143,7 @@ class MyInfoPageView: UIViewController {
     
     private lazy var heightTextField: UITextField = {
        let textField = UITextField()
+        textField.textColor = .black
         textField.borderStyle = .none
         textField.textAlignment = .left
         textField.placeholder = "Рост"
@@ -151,6 +157,7 @@ class MyInfoPageView: UIViewController {
     
     private lazy var weightTextField: UITextField = {
        let textField = UITextField()
+        textField.textColor = .black
         textField.borderStyle = .none
         textField.textAlignment = .left
         textField.placeholder = "Вес"
@@ -209,6 +216,7 @@ class MyInfoPageView: UIViewController {
         button.setTitle("Сохранить изменения", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = UIColor(red: 181/255, green: 163/255, blue: 128/255, alpha: 1)
+        button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         
         return button
     }()
@@ -276,6 +284,39 @@ class MyInfoPageView: UIViewController {
         }
     }
     
+    public func configureUI(userInfo: UserInformationModel?) {
+        guard let userInfo = userInfo else { return }
+        DispatchQueue.main.async {
+            self.nameTextField.text = userInfo.name
+            self.phoneNumberTextField.text = userInfo.phoneNumber
+            self.emailTextField.text = userInfo.email
+            if userInfo.height != 0 && userInfo.weight != 0 {
+                self.heightTextField.text = "\(String(describing: userInfo.height))"
+                self.weightTextField.text = "\(String(describing: userInfo.weight))"
+            }
+            self.genderSegment.selectedSegmentIndex = userInfo.gender
+            self.activitySegment.selectedSegmentIndex = userInfo.activity
+            self.userID = userInfo.id
+        }
+    }
+    
+    @objc private func saveTapped() {
+        let height = Int(self.heightTextField.text ?? "0")
+        let weight = Int(self.weightTextField.text ?? "0")
+        let updated = UserInformationModel(
+            activity: self.activitySegment.selectedSegmentIndex,
+            birth: "string",
+            email: self.emailTextField.text ?? "",
+            gender: self.genderSegment.selectedSegmentIndex,
+            height: height!,
+            id: self.userID,
+            name: self.nameTextField.text ?? "",
+            phoneNumber: self.phoneNumberTextField.text!,
+            weight: weight!
+        )
+        onSaveButtonTapped?(updated)
+            print("Save button pressed")
+    }
 }
 extension MyInfoPageView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -283,6 +324,33 @@ extension MyInfoPageView: UITextFieldDelegate {
         
         return true
     }
+    
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        if textField == self.weightTextField,
+//           let text = textField.text,
+//           text.hasSuffix(" кг") {
+//            textField.text = String(text.dropLast(3))
+//        }
+//        if textField == heightTextField,
+//           let text = textField.text,
+//           text.hasSuffix(" см") {
+//            textField.text = String(text.dropLast(3))
+//        }
+//    }
+//
+//    func textFieldDidEndEditing(_ textField: UITextField) {
+//        if textField == self.weightTextField,
+//           let text = textField.text,
+//           !text.isEmpty {
+//            textField.text = "\(text) кг"
+//        }
+//        if textField == heightTextField,
+//           let text = textField.text,
+//           !text.isEmpty {
+//            textField.text = "\(text) см"
+//        }
+//    }
+
 }
 
 extension UITextField {
@@ -304,4 +372,6 @@ extension UITextField {
         ])
     }
 }
+
+
 
