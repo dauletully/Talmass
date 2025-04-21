@@ -145,6 +145,7 @@ class LoginView: UIViewController {
             self?.onLoginSuccess?()
         }
         viewModel.onError =  { error in
+            self.showErrorBanner(message: "Неверные данные")
             print("❌ Ошибка при входе: \(error)")
         }
         viewModel.onLoadingStateChange = { [weak self] isLoading in

@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appCoordinator?.start()
         
         
-//        window?.rootViewController = UINavigationController(rootViewController: MyInfoPageView())
+//        window?.rootViewController = UINavigationController(rootViewController: CourseView())
 //        
         window?.makeKeyAndVisible()
     }

@@ -10,6 +10,7 @@ import UIKit
 class ProfileView: UIViewController {
     
     private var viewModel: ProfileViewModel
+    private var currentUser: UserInformationModel?
     
     init(viewModel: ProfileViewModel) {
         self.viewModel = viewModel
@@ -122,6 +123,7 @@ class ProfileView: UIViewController {
     
     private func setupBinding() {
         self.viewModel.onProfileUpdated = { [weak self] user in
+            self?.currentUser = user
             self?.nameTitle.text = user.name
             self?.phoneNumberTitle.text = self?.formatPhoneNumber(user.phoneNumber)
         }
@@ -129,7 +131,11 @@ class ProfileView: UIViewController {
             self?.viewModel.logout()
         }
         self.contentViewElements.onInfoTapped = { [weak self] in
-            self?.viewModel.onInfoTapped?()
+            guard let self = self else {fatalError("Assertion failed")}
+            self.viewModel.onInfoTapped?(self.currentUser)
+        }
+        self.contentViewElements.onConntectedTapped = {
+            self.setupConnectType()
         }
     }
     override func viewDidLoad() {
@@ -177,6 +183,17 @@ class ProfileView: UIViewController {
         contentViewElements.snp.makeConstraints { make in
             make.edges.equalTo(contentView)
         }
+    }
+    
+    private func setupConnectType() {
+        let connectionTypeVC = ConnectionTypeView()
+        
+        if let sheet = connectionTypeVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+        present(connectionTypeVC, animated: true)
     }
     
     private func formatPhoneNumber(_ raw: String) -> String {

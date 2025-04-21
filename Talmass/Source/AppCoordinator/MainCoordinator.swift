@@ -23,6 +23,7 @@ class MainCoordinator {
     func start() {
         let basketVM = BasketViewModel()
         let profileVM = ProfileViewModel()
+        let orderVM = OrderViewModel()
         
         let tabBarController = TabBarController()
         tabBarController.basketViewModel = basketVM
@@ -33,13 +34,13 @@ class MainCoordinator {
             tabBarController.selectedIndex = 1
         }
         basketVM.onOrderTapped = {
-            self.showOrder()
+            self.showOrder(viewModel: orderVM)
         }
         profileVM.onLogout = {
             self.logout()
         }
-        profileVM.onInfoTapped = {
-            self.showMyInfo()
+        profileVM.onInfoTapped = { [weak self] userInfo in
+            self?.showMyInfo(userInfo: userInfo)
         }
         
         let navController = UINavigationController(rootViewController: tabBarController)
@@ -48,8 +49,8 @@ class MainCoordinator {
         
     }
     
-    func showOrder() {
-        let orderVC = OrderView()
+    func showOrder(viewModel: OrderViewModel) {
+        let orderVC = OrderView(viewModel: viewModel)
         navigationController?.pushViewController(orderVC, animated: true)
     }
     
@@ -59,8 +60,20 @@ class MainCoordinator {
         authCoordinates.start()
     }
     
-    func showMyInfo() {
+    func showMyInfo(userInfo: UserInformationModel?) {
         let myInfoVC = MyInfoPageView()
+        myInfoVC.configureUI(userInfo: userInfo)
+        
+        myInfoVC.onSaveButtonTapped = { [weak self] updatedUser in
+                if let profileVM = (self?.navigationController?.viewControllers.first as? TabBarController)?.profileViewModel {
+                    print("Data sent")
+                    profileVM.checkInputinformation(userData: updatedUser) { errorType in
+
+                    }
+                    profileVM.updateUserInformation(updateData: updatedUser)
+                }
+            }
+        
         navigationController?.pushViewController(myInfoVC, animated: true)
     }
     

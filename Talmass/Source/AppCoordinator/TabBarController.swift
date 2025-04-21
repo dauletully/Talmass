@@ -11,6 +11,7 @@ class TabBarController: UITabBarController {
     
     var basketViewModel: BasketViewModel?
     var profileViewModel: ProfileViewModel?
+    var courseViewModel: CourseViewModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,10 +22,11 @@ class TabBarController: UITabBarController {
     public func genetateTabBar() {
         let basketVC = BasketView(viewModel: basketViewModel ?? BasketViewModel())
         let profileVC = ProfileView(viewModel: profileViewModel ?? ProfileViewModel())
+        let courseVC = CourseView(viewModel: courseViewModel ?? CourseViewModel())
         
         viewControllers = [
             generateViewController(
-                viewController: CatalogView(),
+                viewController: courseVC,
                 image: UIImage(named: "course_icon")!,
                 title: "Курсы"),
             generateViewController(
